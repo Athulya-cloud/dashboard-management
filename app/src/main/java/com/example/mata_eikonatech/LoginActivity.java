@@ -1,7 +1,13 @@
 package com.example.mata_eikonatech;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -10,36 +16,55 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.loginactivity);
 
-        // Call the login method when the activity is created
-        login("exampleUsername", "examplePassword");
+        usernameEditText = findViewById(R.id.usernameEditText);
+        passwordEditText = findViewById(R.id.passwordEditText);
+        loginButton = findViewById(R.id.loginButton);
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username = usernameEditText.getText().toString().trim();
+                String password = passwordEditText.getText().toString().trim();
+                login(username, password);
+            }
+        });
     }
 
     private void login(String username, String password) {
         new LoginTask(username, password, new LoginTask.LoginListener() {
             @Override
             public void onLoginSuccess(String authToken) {
-                // Handle successful login
+                // Store the bearer token securely (e.g., in SharedPreferences)
+                // Navigate to the next screen
+                Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onLoginError(String errorMessage) {
-                // Handle login error
+                // Display error message to the user
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         }).execute();
     }
 
     private static class LoginTask extends AsyncTask<Void, Void, String> {
+        public interface LoginListener {
+            void onLoginSuccess(String authToken);
+
+            void onLoginError(String errorMessage);
+        }
 
         private static final String BASE_URL = "http://103.74.54.133:8080/apis/V1/authenticate";
         private String username;
@@ -92,7 +117,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         }
-
         @Override
         protected void onPostExecute(String response) {
             if (response != null) {
@@ -109,9 +133,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-        public interface LoginListener {
-            void onLoginSuccess(String authToken);
-            void onLoginError(String errorMessage);
-        }
     }
 }
+
