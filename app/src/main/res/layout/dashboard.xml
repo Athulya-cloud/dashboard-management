@@ -1,6 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:title="       MATA"
+        app:titleTextAppearance="@style/ToolbarTitle"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- ImageButton for Menu -->
+    <ImageButton
+        android:id="@+id/btnNavigateToMenu"
+        android:layout_width="39dp"
+        android:layout_height="58dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/textViewEmployeeDetails"
+        android:layout_width="224dp"
+        android:layout_height="82dp"
+        android:layout_marginTop="60dp"
+        android:padding="16dp"
+        android:text="Employee ID: XYZ1234\nLocation: ABC Company"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButtonMarkAttendance"
+        app:layout_constraintHorizontal_bias="0.285"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintVertical_bias="0.005" />
+
+    <ImageButton
+        android:id="@+id/imageButtonMarkAttendance"
+        android:layout_width="123dp"
+        android:layout_height="131dp"
+        android:layout_marginEnd="24dp"
+        android:padding="16dp"
+        app:srcCompat="@drawable/location"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.134" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

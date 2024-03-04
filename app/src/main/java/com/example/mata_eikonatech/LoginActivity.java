@@ -1,6 +1,7 @@
 package com.example.mata_eikonatech;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -91,6 +92,9 @@ public class LoginActivity extends AppCompatActivity {
     private void onLoginSuccess() {
         // Navigate to the next screen or perform any other action on successful login
         Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(LoginActivity.this,Dashboard.class);
+        startActivity(intent);
+        finish();
     }
 
     private void onLoginError(String errorMessage) {
