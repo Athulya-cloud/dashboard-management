@@ -36,6 +36,7 @@ android {
     buildFeatures {
         viewBinding = true
         compose = true
+        buildConfig=true
     }
     kotlinOptions {
         jvmTarget = "1.8"

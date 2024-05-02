@@ -1,5 +1,4 @@
 package com.example.mata_eikonatech;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import android.util.Log;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -66,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                             String authToken = response.getString("authorize_token");
                             storeAuthToken(authToken); // Store the authToken securely
                             onLoginSuccess();
+                            Log.d("success","login successful");
                         } catch (JSONException e) {
                             e.printStackTrace();
                             onLoginError("Error parsing JSON response");
@@ -86,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
     private void storeAuthToken(String authToken) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("authToken", authToken);
+        Log.d("success","authtokenstored");
         editor.apply();
     }
 

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">mata_eikonatech</string>
-    <string name="title_activity_maps">MapsActivity</string>
-    <string name="title_activity_dashboardactivity">dashboardactivity</string>
+    <string name="title_activity_maps">MapActivity</string>
     <string name="title_activity_dashboard">Dashboard</string>
+    <string name="title_activity_menu">Menu</string>
 </resources>
