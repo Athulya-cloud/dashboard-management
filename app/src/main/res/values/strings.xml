@@ -3,4 +3,14 @@
     <string name="title_activity_maps">MapActivity</string>
     <string name="title_activity_dashboard">Dashboard</string>
     <string name="title_activity_menu">Menu</string>
+<!--    <string-array name="work_code_array">-->
+<!--        <item>Code 1</item>-->
+<!--        <item>Code 2</item>-->
+<!--        <item>Code 3</item>-->
+<!--    </string-array>-->
+<!--    <string-array name="function_key_array">-->
+<!--        <item>Key 1</item>-->
+<!--        <item>Key 2</item>-->
+<!--        <item>Key 3</item>-->
+<!--    </string-array>-->
 </resources>

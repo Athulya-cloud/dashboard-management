@@ -1,16 +1,23 @@
 package com.example.mata_eikonatech;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.ColorDrawable;
 import android.provider.MediaStore;
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Base64;
 import android.graphics.Bitmap;
@@ -18,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import androidx.core.content.ContextCompat;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.gms.maps.GoogleMap;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -26,34 +32,38 @@ import android.util.Log;
 
 import android.Manifest;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.example.mata_eikonatech.R;
-import java.io.ByteArrayOutputStream;
-import org.json.JSONException;
-import org.json.JSONObject;
-import android.net.Uri;
+import java.util.ArrayList;
 
 public class Dashboard extends AppCompatActivity {
+    private PopupWindow popupWindow;
+    private View popupView;
     DrawerLayout drawerlayout;
     ImageView menu;
+    TextView attendance, schedule, logout;
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int PERMISSION_REQUEST_CODE = 101;
-
-    private GoogleMap myMap;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
+
+
         drawerlayout = findViewById(R.id.drawerlayout);
+        menu = findViewById(R.id.menu);
+
+        TextView logout = findViewById(R.id.logout);
+        TextView attendance = findViewById(R.id.attendance);
+        TextView schedule = findViewById(R.id.schedule);
+        ImageButton MarkAttendance = findViewById(R.id.MarkAttendance);
+
+        MarkAttendance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setupPopupWindow();
+                popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            }
+        });
 
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,10 +71,103 @@ public class Dashboard extends AppCompatActivity {
                 openDrawer(drawerlayout);
             }
         });
-        ImageButton imageButtonMarkAttendance = findViewById(R.id.imageButtonMarkAttendance);
+
+        attendance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                redirectActivity(Dashboard.this, Attendance.class);
+                Log.d("success", "ATTENDANCE OPEN");
+            }
+        });
+
+        schedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                redirectActivity(Dashboard.this, Schedule.class);
+                Log.d("success", "SCHEDULE OPEN");
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Dashboard.this, "Logout successfully.", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Dashboard.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                Log.d("success", "LOGOUT");
+            }
+        });
+    }
+
+    private void setupPopupWindow() {
+        Log.d("Dashboard", "Setting up popup window");
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        popupView = inflater.inflate(R.layout.punchinpopup, null);
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        popupWindow.setFocusable(true);
+
+        Button saveButton = popupView.findViewById(R.id.saveButton);
+        ImageView imageButtonMarkAttendance = popupView.findViewById(R.id.imageButtonMarkAttendance);
+
+        Spinner workCodeSpinner = popupView.findViewById(R.id.workCodeSpinner);
+        Spinner otherDropdownSpinner = popupView.findViewById(R.id.otherDropdownSpinner);
+
+        workCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                String item = adapterView.getItemAtPosition(position).toString();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        otherDropdownSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                String item = adapterView.getItemAtPosition(position).toString();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        ArrayList<String> work_code_array = new ArrayList<>();
+        ArrayList<String> function_key_array = new ArrayList<>();
+
+        work_code_array.add("Item 1");
+        work_code_array.add("Item 2");
+        work_code_array.add("Item 3");
+        work_code_array.add("Item 4");
+
+        function_key_array.add("Check in");
+        function_key_array.add("Check out");
+        function_key_array.add("Item 3");
+        function_key_array.add("Item 4");
+
+        ArrayAdapter<String> workcodeadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, work_code_array);
+        ArrayAdapter<String> functionkeyadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, function_key_array);
+
+        workcodeadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        functionkeyadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        workCodeSpinner.setAdapter(workcodeadapter);
+        otherDropdownSpinner.setAdapter(functionkeyadapter);
+
+
+        imageButtonMarkAttendance.setClickable(true);
         imageButtonMarkAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("Dashboard", "OnClick is called");
                 if (checkPermission()) {
                     openCamera();
                 } else {
@@ -76,7 +179,7 @@ public class Dashboard extends AppCompatActivity {
 
     public static void openDrawer(DrawerLayout drawerlayout) {
         drawerlayout.openDrawer(GravityCompat.START);
-        Log.d("success","Drawer Opened");
+        Log.d("success", "Drawer Opened");
     }
 
     public static void closeDrawer(DrawerLayout drawerlayout) {
@@ -98,51 +201,28 @@ public class Dashboard extends AppCompatActivity {
         closeDrawer(drawerlayout);
     }
 
-    //ImageButton btnNavigateToMenu = findViewById(R.id.btnNavigateToMenu);
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-//        btnNavigateToMenu.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Intent intent = new Intent(Dashboard.this, Menu.class);
-//                startActivity(intent);
-//            }
-
-    //});
-
-//    @Override
-//    public void onMapReady(@NonNull GoogleMap googleMap) {
-//        myMap = googleMap;
-//        if (myMap != null) {
-//            LatLng sydney = new LatLng(-34, 151);
-//            myMap.addMarker(new MarkerOptions().position(sydney).title("Sydney"));
-//            myMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-//        } else {
-//            Toast.makeText(this, "Error:Map initialization failed", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-
-    private boolean checkPermission(){
-        return ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED;
-
+    private boolean checkPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestPermission(){
-        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},PERMISSION_REQUEST_CODE);
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
     }
 
-    private void openCamera(){
+    private void openCamera() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (cameraIntent.resolveActivity(getPackageManager())!=null){
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults ){
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PERMISSION_REQUEST_CODE){
-            if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera();
-            }else{
+            } else {
                 Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
             }
         }
@@ -151,23 +231,23 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK){
+        if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
-            if(extras != null && extras.containsKey("data")){
+            if (extras != null && extras.containsKey("data")) {
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
-                if(imageBitmap != null){
+                if (imageBitmap != null) {
                     String base64Image = encodeImageToBase64(imageBitmap);
+                    Log.d("success", "Image captured and encoded");
                 }
             }
         }
     }
 
-    private String encodeImageToBase64(Bitmap imageBitmap){
+    private String encodeImageToBase64(Bitmap imageBitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] byteArrayImage = baos.toByteArray();
-        Log.d("success","image converted");
+        Log.d("success", "image converted");
         return Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-
     }
 }

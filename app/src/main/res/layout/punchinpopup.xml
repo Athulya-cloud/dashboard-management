@@ -1,0 +1,103 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="1dp"
+    android:background="@color/colorTextLight">
+
+    <RelativeLayout
+        android:id="@+id/attendanceSection"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:elevation="20dp"
+        android:background="@drawable/punchinpopupbkg">
+
+        <TextView
+            android:id="@+id/attendanceTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Attendance Photo"
+            android:textColor="@color/colorTextDark"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/imageButtonMarkAttendance"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="36dp"
+            android:src="@drawable/camera" />
+
+        <TextView
+            android:id="@+id/workCodeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/attendanceTitle"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Work Code    "
+            android:textColor="@color/colorTextDark"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/workCodeSpinner"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/workCodeTitle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:spinnerMode="dropdown"
+            android:layout_toEndOf="@id/workCodeTitle" />
+
+        <TextView
+            android:id="@+id/otherDropdownTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/workCodeTitle"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Function Key"
+            android:textColor="@color/colorTextDark"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:id="@+id/otherDropdownSpinner"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/otherDropdownTitle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:spinnerMode="dropdown"
+            android:layout_toEndOf="@id/otherDropdownTitle" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:padding="10dp"
+            android:text="Save" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp">
+        <ImageButton
+            android:id="@+id/closeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/baseline_close_24"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+    </RelativeLayout>
+</RelativeLayout>
