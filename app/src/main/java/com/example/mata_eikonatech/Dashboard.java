@@ -1,11 +1,15 @@
 package com.example.mata_eikonatech;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
-import android.provider.MediaStore;
-import androidx.annotation.NonNull;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,24 +23,23 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Base64;
-import android.graphics.Bitmap;
-import java.io.ByteArrayOutputStream;
-import androidx.core.content.ContextCompat;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import android.util.Log;
 
-import android.Manifest;
-
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 public class Dashboard extends AppCompatActivity {
     private PopupWindow popupWindow;
+    private View overlay;
     private View popupView;
+    private ImageView capturedImageView;
     DrawerLayout drawerlayout;
     ImageView menu;
     TextView attendance, schedule, logout;
@@ -48,13 +51,22 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
 
-
         drawerlayout = findViewById(R.id.drawerlayout);
         menu = findViewById(R.id.menu);
+
+        overlay = new View(this);
+        overlay.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        overlay.setBackgroundColor(0x80000000); // Semi-transparent black color
+        overlay.setVisibility(View.GONE);
+
+        DrawerLayout rootLayout = findViewById(R.id.drawerlayout);
+        rootLayout.addView(overlay);
 
         TextView logout = findViewById(R.id.logout);
         TextView attendance = findViewById(R.id.attendance);
         TextView schedule = findViewById(R.id.schedule);
+        TextView notifications = findViewById(R.id.notifications);
+        TextView recentpunches = findViewById(R.id.recentpunchestextview);
         ImageButton MarkAttendance = findViewById(R.id.MarkAttendance);
 
         MarkAttendance.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +100,24 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
+        recentpunches.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Dashboard.this, RecentPunches.class);
+                startActivity(intent);
+                Log.d("success","Recent Punches");
+            }
+        });
+
+        notifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Dashboard.this, Notifications.class);
+                startActivity(intent);
+                Log.d("success","Notifications");
+            }
+        });
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,8 +138,18 @@ public class Dashboard extends AppCompatActivity {
         popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         popupWindow.setFocusable(true);
 
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                overlay.setVisibility(View.GONE);
+            }
+        });
+
+        overlay.setVisibility(View.VISIBLE);
+
         Button saveButton = popupView.findViewById(R.id.saveButton);
         ImageView imageButtonMarkAttendance = popupView.findViewById(R.id.imageButtonMarkAttendance);
+        capturedImageView = popupView.findViewById(R.id.capturedImageView);
 
         Spinner workCodeSpinner = popupView.findViewById(R.id.workCodeSpinner);
         Spinner otherDropdownSpinner = popupView.findViewById(R.id.otherDropdownSpinner);
@@ -118,12 +158,10 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 String item = adapterView.getItemAtPosition(position).toString();
-
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
 
@@ -131,27 +169,28 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 String item = adapterView.getItemAtPosition(position).toString();
-
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
 
         ArrayList<String> work_code_array = new ArrayList<>();
         ArrayList<String> function_key_array = new ArrayList<>();
 
-        work_code_array.add("Item 1");
-        work_code_array.add("Item 2");
-        work_code_array.add("Item 3");
-        work_code_array.add("Item 4");
+        work_code_array.add("Manual Log");
+        work_code_array.add("Leave");
+        work_code_array.add("Training");
+        work_code_array.add("Overtime");
+        work_code_array.add("Schedule Adjustment");
 
-        function_key_array.add("Check in");
-        function_key_array.add("Check out");
-        function_key_array.add("Item 3");
-        function_key_array.add("Item 4");
+        function_key_array.add("Check In");
+        function_key_array.add("Check Out");
+        function_key_array.add("Break In");
+        function_key_array.add("Break Out");
+        function_key_array.add("Overtime In");
+        function_key_array.add("Overtime Out");
 
         ArrayAdapter<String> workcodeadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, work_code_array);
         ArrayAdapter<String> functionkeyadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, function_key_array);
@@ -161,7 +200,6 @@ public class Dashboard extends AppCompatActivity {
 
         workCodeSpinner.setAdapter(workcodeadapter);
         otherDropdownSpinner.setAdapter(functionkeyadapter);
-
 
         imageButtonMarkAttendance.setClickable(true);
         imageButtonMarkAttendance.setOnClickListener(new View.OnClickListener() {
@@ -238,6 +276,8 @@ public class Dashboard extends AppCompatActivity {
                 if (imageBitmap != null) {
                     String base64Image = encodeImageToBase64(imageBitmap);
                     Log.d("success", "Image captured and encoded");
+                    capturedImageView.setImageBitmap(imageBitmap);
+                    capturedImageView.setVisibility(View.VISIBLE); // Ensure the ImageView is visible
                 }
             }
         }

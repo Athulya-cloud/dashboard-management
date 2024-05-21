@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_centerInParent="true"
-        android:elevation="20dp"
-        android:background="@drawable/punchinpopupbkg">
+        android:background="@drawable/punchinpopupbkg"
+        android:elevation="20dp">
 
         <TextView
             android:id="@+id/attendanceTitle"
@@ -24,12 +24,24 @@
 
         <ImageView
             android:id="@+id/imageButtonMarkAttendance"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="1dp"
+            android:layout_toStartOf="@id/capturedImageView"
+            android:src="@drawable/camera" />
+
+        <ImageView
+            android:id="@+id/capturedImageView"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="36dp"
-            android:src="@drawable/camera" />
+            android:layout_marginEnd="33dp"
+            android:visibility="gone"
+            android:src="@drawable/image_placeholder" />
+
+
 
         <TextView
             android:id="@+id/workCodeTitle"
@@ -38,7 +50,7 @@
             android:layout_below="@id/attendanceTitle"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:text="Work Code    "
+            android:text="Work Code"
             android:textColor="@color/colorTextDark"
             android:textSize="16sp" />
 
@@ -50,8 +62,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:spinnerMode="dropdown"
-            android:layout_toEndOf="@id/workCodeTitle" />
+            android:layout_toEndOf="@id/workCodeTitle"
+            android:spinnerMode="dropdown" />
 
         <TextView
             android:id="@+id/otherDropdownTitle"
@@ -72,8 +84,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:spinnerMode="dropdown"
-            android:layout_toEndOf="@id/otherDropdownTitle" />
+            android:layout_toEndOf="@id/otherDropdownTitle"
+            android:spinnerMode="dropdown" />
 
         <Button
             android:id="@+id/saveButton"

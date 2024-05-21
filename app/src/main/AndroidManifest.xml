@@ -33,6 +33,11 @@
             android:name=".RecentPunches"
             android:exported="false"
             android:theme="@style/Theme.Mata_eikonatech" />
+        <activity
+            android:name=".Notifications"
+            android:exported="false"
+            android:theme="@style/Theme.Mata_eikonatech" />
+
 
         <activity
             android:name=".Attendance"
