@@ -31,15 +31,25 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
-public class Dashboard extends AppCompatActivity {
+public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
+    private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     private PopupWindow popupWindow;
     private View overlay;
     private View popupView;
     private ImageView capturedImageView;
+    private MapView mapView;
     DrawerLayout drawerlayout;
     ImageView menu;
     TextView attendance, schedule, logout;
@@ -66,7 +76,12 @@ public class Dashboard extends AppCompatActivity {
         TextView attendance = findViewById(R.id.attendance);
         TextView schedule = findViewById(R.id.schedule);
         TextView notifications = findViewById(R.id.notifications);
+        TextView contact = findViewById(R.id.contact);
         TextView recentpunches = findViewById(R.id.recentpunchestextview);
+        TextView request = findViewById(R.id.request);
+        TextView announcement = findViewById(R.id.announcement);
+        TextView mystatus = findViewById(R.id.mystatus);
+        TextView profile = findViewById(R.id.profile);
         ImageButton MarkAttendance = findViewById(R.id.MarkAttendance);
 
         MarkAttendance.setOnClickListener(new View.OnClickListener() {
@@ -118,6 +133,51 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
+        contact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Dashboard.this, Contact.class);
+                startActivity(intent);
+                Log.d("success","Contact");
+            }
+        });
+
+        request.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Dashboard.this, Request.class);
+                startActivity(intent);
+                Log.d("success","REQUEST");
+            }
+        });
+
+        announcement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Dashboard.this, Announcement.class);
+                startActivity(intent);
+                Log.d("success","ANNOUNCEMENT");
+            }
+        });
+
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Dashboard.this, Profile.class);
+                startActivity(intent);
+                Log.d("success","PROFILE");
+            }
+        });
+
+        mystatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(Dashboard.this, MyStatus.class);
+                startActivity(intent);
+                Log.d("success","MYSTATUS");
+            }
+        });
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,6 +188,14 @@ public class Dashboard extends AppCompatActivity {
                 Log.d("success", "LOGOUT");
             }
         });
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        SupportMapFragment mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            fragmentManager.beginTransaction().replace(R.id.map, mapFragment).commit();
+        }
+        mapFragment.getMapAsync(this);
     }
 
     private void setupPopupWindow() {
@@ -289,5 +357,10 @@ public class Dashboard extends AppCompatActivity {
         byte[] byteArrayImage = baos.toByteArray();
         Log.d("success", "image converted");
         return Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+
     }
 }
