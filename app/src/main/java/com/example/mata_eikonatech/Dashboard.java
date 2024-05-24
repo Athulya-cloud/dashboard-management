@@ -37,6 +37,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.CameraUpdateFactory;
+
+
 
 import org.w3c.dom.Text;
 
@@ -361,6 +365,10 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        LatLng bengaluru = new LatLng(12.9716, 77.5946);
 
+        // Move the camera to Bengaluru and zoom in
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bengaluru, 12));
     }
 }

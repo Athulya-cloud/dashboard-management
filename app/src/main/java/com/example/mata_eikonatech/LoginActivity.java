@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, "http://103.74.54.133:8080/apis/V1/authenticate", jsonParams,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, "https://matasecurity.com/apis/V1/authenticate", jsonParams,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
