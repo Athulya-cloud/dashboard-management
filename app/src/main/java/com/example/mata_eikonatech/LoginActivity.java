@@ -65,8 +65,8 @@ public class LoginActivity extends AppCompatActivity {
                         try {
                             String authToken = response.getString("authorize_token");
                             storeAuthToken(authToken); // Store the authToken securely
-                            onLoginSuccess();
-                            Log.d("success","login successful");
+                            onLoginSuccess(authToken); // Pass the token to the next activity
+                            Log.d("success", "login successful");
                         } catch (JSONException e) {
                             e.printStackTrace();
                             onLoginError("Error parsing JSON response");
@@ -91,10 +91,10 @@ public class LoginActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void onLoginSuccess() {
-        // Navigate to the next screen or perform any other action on successful login
+    private void onLoginSuccess(String authToken) {
         Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(LoginActivity.this,Dashboard.class);
+        Intent intent = new Intent(LoginActivity.this, Dashboard.class);
+        intent.putExtra("AUTH_TOKEN", authToken);
         startActivity(intent);
         finish();
     }

@@ -33,6 +33,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -40,12 +48,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.CameraUpdateFactory;
 
-
-
-import org.w3c.dom.Text;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
@@ -55,7 +64,9 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
     private ImageView capturedImageView;
     private MapView mapView;
     DrawerLayout drawerlayout;
+    private String authToken;
     ImageView menu;
+    private Bitmap capturedImageBitmap;
     TextView attendance, schedule, logout;
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int PERMISSION_REQUEST_CODE = 101;
@@ -64,18 +75,23 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
-
         drawerlayout = findViewById(R.id.drawerlayout);
         menu = findViewById(R.id.menu);
-
         overlay = new View(this);
         overlay.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         overlay.setBackgroundColor(0x80000000); // Semi-transparent black color
         overlay.setVisibility(View.GONE);
-
         DrawerLayout rootLayout = findViewById(R.id.drawerlayout);
         rootLayout.addView(overlay);
+        authToken = getIntent().getStringExtra("AUTH_TOKEN");
+        if (authToken == null) {
+            Log.e("Dashboard", "AuthToken is null");
+            Toast.makeText(this, "Authentication token is missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
+        Log.d("Dashboard", "Retrieved AuthToken: " + authToken);
         TextView logout = findViewById(R.id.logout);
         TextView attendance = findViewById(R.id.attendance);
         TextView schedule = findViewById(R.id.schedule);
@@ -87,7 +103,6 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         TextView mystatus = findViewById(R.id.mystatus);
         TextView profile = findViewById(R.id.profile);
         ImageButton MarkAttendance = findViewById(R.id.MarkAttendance);
-
         MarkAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,14 +110,12 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
             }
         });
-
         menu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openDrawer(drawerlayout);
             }
         });
-
         attendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,7 +123,6 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 Log.d("success", "ATTENDANCE OPEN");
             }
         });
-
         schedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,70 +130,62 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 Log.d("success", "SCHEDULE OPEN");
             }
         });
-
         recentpunches.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Dashboard.this, RecentPunches.class);
                 startActivity(intent);
-                Log.d("success","Recent Punches");
+                Log.d("success", "Recent Punches");
             }
         });
-
         notifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Dashboard.this, Notifications.class);
                 startActivity(intent);
-                Log.d("success","Notifications");
+                Log.d("success", "Notifications");
             }
         });
-
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Dashboard.this, Contact.class);
+                Intent intent = new Intent(Dashboard.this, Contact.class);
                 startActivity(intent);
-                Log.d("success","Contact");
+                Log.d("success", "Contact");
             }
         });
-
         request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Dashboard.this, Request.class);
+                Intent intent = new Intent(Dashboard.this, Request.class);
                 startActivity(intent);
-                Log.d("success","REQUEST");
+                Log.d("success", "REQUEST");
             }
         });
-
         announcement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Dashboard.this, Announcement.class);
+                Intent intent = new Intent(Dashboard.this, Announcement.class);
                 startActivity(intent);
-                Log.d("success","ANNOUNCEMENT");
+                Log.d("success", "ANNOUNCEMENT");
             }
         });
-
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Dashboard.this, Profile.class);
+                Intent intent = new Intent(Dashboard.this, Profile.class);
                 startActivity(intent);
-                Log.d("success","PROFILE");
+                Log.d("success", "PROFILE");
             }
         });
-
         mystatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(Dashboard.this, MyStatus.class);
+                Intent intent = new Intent(Dashboard.this, MyStatus.class);
                 startActivity(intent);
-                Log.d("success","MYSTATUS");
+                Log.d("success", "MYSTATUS");
             }
         });
-
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +196,6 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 Log.d("success", "LOGOUT");
             }
         });
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         SupportMapFragment mapFragment = (SupportMapFragment) fragmentManager.findFragmentById(R.id.map);
         if (mapFragment == null) {
@@ -209,23 +212,18 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         popupWindow.setFocusable(true);
-
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
                 overlay.setVisibility(View.GONE);
             }
         });
-
         overlay.setVisibility(View.VISIBLE);
-
         Button saveButton = popupView.findViewById(R.id.saveButton);
         ImageView imageButtonMarkAttendance = popupView.findViewById(R.id.imageButtonMarkAttendance);
         capturedImageView = popupView.findViewById(R.id.capturedImageView);
-
         Spinner workCodeSpinner = popupView.findViewById(R.id.workCodeSpinner);
         Spinner otherDropdownSpinner = popupView.findViewById(R.id.otherDropdownSpinner);
-
         workCodeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
@@ -236,7 +234,6 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
-
         otherDropdownSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
@@ -247,32 +244,25 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
-
         ArrayList<String> work_code_array = new ArrayList<>();
         ArrayList<String> function_key_array = new ArrayList<>();
-
         work_code_array.add("Manual Log");
         work_code_array.add("Leave");
         work_code_array.add("Training");
         work_code_array.add("Overtime");
         work_code_array.add("Schedule Adjustment");
-
         function_key_array.add("Check In");
         function_key_array.add("Check Out");
         function_key_array.add("Break In");
         function_key_array.add("Break Out");
         function_key_array.add("Overtime In");
         function_key_array.add("Overtime Out");
-
         ArrayAdapter<String> workcodeadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, work_code_array);
         ArrayAdapter<String> functionkeyadapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, function_key_array);
-
         workcodeadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         functionkeyadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         workCodeSpinner.setAdapter(workcodeadapter);
         otherDropdownSpinner.setAdapter(functionkeyadapter);
-
         imageButtonMarkAttendance.setClickable(true);
         imageButtonMarkAttendance.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -283,6 +273,13 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 } else {
                     requestPermission();
                 }
+            }
+        });
+        saveButton.setOnClickListener(view -> {
+            if (capturedImageBitmap != null) {
+                markAttendance(capturedImageBitmap);
+            } else {
+                Toast.makeText(Dashboard.this, "Please capture an image first.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -350,6 +347,7 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                     Log.d("success", "Image captured and encoded");
                     capturedImageView.setImageBitmap(imageBitmap);
                     capturedImageView.setVisibility(View.VISIBLE); // Ensure the ImageView is visible
+                    capturedImageBitmap = imageBitmap; // Set the captured image to the field
                 }
             }
         }
@@ -363,12 +361,92 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         return Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
     }
 
+    private void markAttendance(Bitmap imageBitmap) {
+        String url = "https://matasecurity.com/apis/V1/mark/attendance";
+        String base64Image = encodeImageToBase64(imageBitmap);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("siteId", 1);
+            jsonObject.put("latitude", 12.34);
+            jsonObject.put("longitude", 14.34);
+            jsonObject.put("imageBase64", base64Image); // Corrected this line
+            jsonObject.put("department", "");
+            jsonObject.put("designation", "");
+            jsonObject.put("branch", "");
+            jsonObject.put("deviceName", "");
+            jsonObject.put("sortField", "");
+            jsonObject.put("sortOrder", "");
+            jsonObject.put("pageNo", "1");
+            jsonObject.put("pageSize", "10");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            // Handle the JSON response
+                            Toast.makeText(Dashboard.this, "Attendance marked successfully", Toast.LENGTH_SHORT).show();
+                            popupWindow.dismiss();
+                        } catch (JSONException e) {
+                            // Handle as plain text
+                            Toast.makeText(Dashboard.this, response, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        String errorMessage = "Unknown error";
+                        if (error.networkResponse != null) {
+                            String responseBody = new String(error.networkResponse.data);
+                            try {
+                                JSONObject data = new JSONObject(responseBody);
+                                errorMessage = data.optString("message", responseBody);
+                            } catch (Exception e) {
+                                errorMessage = responseBody; // Fallback to plain text error message
+                            }
+                        }
+                        Toast.makeText(Dashboard.this, "Failed to mark attendance: " + errorMessage, Toast.LENGTH_LONG).show();
+                        Log.e("Dashboard", "Attendance marking failed: " + errorMessage, error);
+                    }
+                }) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                return jsonObject.toString().getBytes();
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + authToken);
+                headers.put("Content-Type", "application/json");
+
+                // Log the Bearer token for verification
+                Log.d("Dashboard", "Authorization: Bearer " + authToken);
+
+                return headers;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
+
+
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         LatLng bengaluru = new LatLng(12.9716, 77.5946);
-
-        // Move the camera to Bengaluru and zoom in
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(bengaluru, 12));
     }
 }
