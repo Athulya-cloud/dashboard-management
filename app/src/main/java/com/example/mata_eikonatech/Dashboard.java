@@ -384,18 +384,20 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
+
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            // Handle the JSON response
+                        if (response.equals("success")) {
+                            // Handle success
                             Toast.makeText(Dashboard.this, "Attendance marked successfully", Toast.LENGTH_SHORT).show();
                             popupWindow.dismiss();
-                        } catch (JSONException e) {
-                            // Handle as plain text
+                        } else {
+                            // Handle other responses or errors
                             Toast.makeText(Dashboard.this, response, Toast.LENGTH_SHORT).show();
                         }
                     }
+
+
                 },
                 new Response.ErrorListener() {
                     @Override
