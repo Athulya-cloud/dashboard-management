@@ -10,10 +10,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Menu extends AppCompatActivity {
+    private String authToken;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_bar);
+        authToken = getIntent().getStringExtra("AUTH_TOKEN");
+        if (authToken == null || authToken.isEmpty()) {
+            Log.e("Menu", "Authentication token is missing");
+        } else {
+            Log.d("Menu", "Authentication token received: " + authToken);
+        }
 
         //TextView logout = findViewById(R.id.logout);
         //TextView attendance=findViewById(R.id.attendance);

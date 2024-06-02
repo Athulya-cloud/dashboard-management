@@ -1,23 +1,31 @@
-<!-- item_recent_punch.xml -->
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
-
     <TextView
-        android:id="@+id/textViewPunchTime"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimaryDark" />
-
-    
-
-    <!-- Add more TextViews or other views for displaying other information about the punch -->
-    <!-- Example: <TextView android:id="@+id/textViewPunchDetails" ... /> -->
-
+        android:text="Timestamp" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/timestamp"/>
+<!--    <TextView-->
+<!--        android:id="@+id/latitude"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Latitude" />-->
+<!--    <TextView-->
+<!--        android:id="@+id/longitude"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Longitude" />-->
+<!--    <ImageView-->
+<!--        android:id="@+id/imageView"-->
+<!--        android:layout_width="100dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--         />-->
 </LinearLayout>
-    t>

@@ -3,6 +3,7 @@ package com.example.mata_eikonatech;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
@@ -23,6 +24,8 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,13 +50,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
@@ -65,6 +71,8 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
     DrawerLayout drawerlayout;
     private String authToken;
+
+    Button saveButton;
     ImageView menu;
     private Bitmap capturedImageBitmap;
     TextView attendance, schedule, logout;
@@ -83,7 +91,13 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         overlay.setVisibility(View.GONE);
         DrawerLayout rootLayout = findViewById(R.id.drawerlayout);
         rootLayout.addView(overlay);
-        authToken = getIntent().getStringExtra("AUTH_TOKEN");
+
+
+        if (getIntent() != null) {
+            authToken = getIntent().getStringExtra("AUTH_TOKEN");
+            Log.e("Dashboard", "AuthToken is not null");
+        }
+
         if (authToken == null) {
             Log.e("Dashboard", "AuthToken is null");
             Toast.makeText(this, "Authentication token is missing", Toast.LENGTH_SHORT).show();
@@ -119,70 +133,63 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         attendance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                redirectActivity(Dashboard.this, Attendance.class);
+                redirectActivity(Dashboard.this, Attendance.class,authToken);
                 Log.d("success", "ATTENDANCE OPEN");
             }
         });
         schedule.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                redirectActivity(Dashboard.this, Schedule.class);
+                redirectActivity(Dashboard.this, Schedule.class,authToken);
                 Log.d("success", "SCHEDULE OPEN");
             }
         });
         recentpunches.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, RecentPunches.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, RecentPunches.class, authToken);
                 Log.d("success", "Recent Punches");
             }
         });
         notifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, Notifications.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, Notifications.class, authToken);
                 Log.d("success", "Notifications");
             }
         });
         contact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, Contact.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, Contact.class, authToken);
                 Log.d("success", "Contact");
             }
         });
         request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, Request.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, Request.class, authToken);
                 Log.d("success", "REQUEST");
             }
         });
         announcement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, Announcement.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, Announcement.class, authToken);
                 Log.d("success", "ANNOUNCEMENT");
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, Profile.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, Profile.class, authToken);
                 Log.d("success", "PROFILE");
             }
         });
         mystatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Dashboard.this, MyStatus.class);
-                startActivity(intent);
+                redirectActivity(Dashboard.this, MyStatus.class, authToken);
                 Log.d("success", "MYSTATUS");
             }
         });
@@ -295,9 +302,10 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
 
-    public static void redirectActivity(Activity activity, Class secondActivity) {
+    public static void redirectActivity(Activity activity, Class secondActivity, String authToken) {
         Intent intent = new Intent(activity, secondActivity);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("AUTH_TOKEN", authToken);
         activity.startActivity(intent);
         activity.finish();
     }
@@ -361,6 +369,22 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         return Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
     }
 
+    private void saveRecentPunch(ModelRecentPunchesRecycle punch) {
+        SharedPreferences sharedPreferences = getSharedPreferences("recent_punches", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("punch_list", "");
+        Type type = new TypeToken<List<ModelRecentPunchesRecycle>>() {}.getType();
+        List<ModelRecentPunchesRecycle> punches = gson.fromJson(json, type);
+        if (punches == null) {
+            punches = new ArrayList<>();
+        }
+        punches.add(punch);
+        json = gson.toJson(punches);
+        editor.putString("punch_list", json);
+        editor.apply();
+    }
+
     private void markAttendance(Bitmap imageBitmap) {
         String url = "https://matasecurity.com/apis/V1/mark/attendance";
         String base64Image = encodeImageToBase64(imageBitmap);
@@ -369,7 +393,7 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
             jsonObject.put("siteId", 1);
             jsonObject.put("latitude", 12.34);
             jsonObject.put("longitude", 14.34);
-            jsonObject.put("imageBase64", base64Image); // Corrected this line
+            jsonObject.put("imageBase64", base64Image);
             jsonObject.put("department", "");
             jsonObject.put("designation", "");
             jsonObject.put("branch", "");
@@ -381,23 +405,20 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
-
                     @Override
                     public void onResponse(String response) {
                         if (response.equals("success")) {
-                            // Handle success
                             Toast.makeText(Dashboard.this, "Attendance marked successfully", Toast.LENGTH_SHORT).show();
+                            Log.d("Photo Attendance", "onResponse successful");
+                            saveRecentPunch(new ModelRecentPunchesRecycle(System.currentTimeMillis()));
                             popupWindow.dismiss();
                         } else {
-                            // Handle other responses or errors
                             Toast.makeText(Dashboard.this, response, Toast.LENGTH_SHORT).show();
+                            Log.d("Photo Attendance", "Response from API received");
                         }
                     }
-
-
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -409,7 +430,7 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                                 JSONObject data = new JSONObject(responseBody);
                                 errorMessage = data.optString("message", responseBody);
                             } catch (Exception e) {
-                                errorMessage = responseBody; // Fallback to plain text error message
+                                errorMessage = responseBody;
                             }
                         }
                         Toast.makeText(Dashboard.this, "Failed to mark attendance: " + errorMessage, Toast.LENGTH_LONG).show();
@@ -420,30 +441,22 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
             public byte[] getBody() throws AuthFailureError {
                 return jsonObject.toString().getBytes();
             }
-
             @Override
             public String getBodyContentType() {
                 return "application/json; charset=utf-8";
             }
-
             @Override
             public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("Authorization", "Bearer " + authToken);
                 headers.put("Content-Type", "application/json");
-
-                // Log the Bearer token for verification
                 Log.d("Dashboard", "Authorization: Bearer " + authToken);
-
                 return headers;
             }
         };
-
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
     }
-
-
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
