@@ -383,6 +383,8 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
         json = gson.toJson(punches);
         editor.putString("punch_list", json);
         editor.apply();
+        Log.d("Dashboard", "Retrieved data: " + punches);
+
     }
 
     private void markAttendance(Bitmap imageBitmap) {
@@ -409,14 +411,18 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (response.equals("success")) {
+                        Log.d("Dashboard", "Response from API: " + response);
+                        if (response.contains("successfully") || response.contains("Successfully")) {
                             Toast.makeText(Dashboard.this, "Attendance marked successfully", Toast.LENGTH_SHORT).show();
-                            Log.d("Photo Attendance", "onResponse successful");
+                            Log.d("Dashboard", "onResponse successful");
+                            double latitude = 12.34;
+                            double longitude = 14.34;
+                            String imageBase64 = encodeImageToBase64(imageBitmap);
                             saveRecentPunch(new ModelRecentPunchesRecycle(System.currentTimeMillis()));
                             popupWindow.dismiss();
                         } else {
                             Toast.makeText(Dashboard.this, response, Toast.LENGTH_SHORT).show();
-                            Log.d("Photo Attendance", "Response from API received");
+                            Log.d("Dashboard", "Response from API received: " + response);
                         }
                     }
                 },
@@ -432,6 +438,8 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                             } catch (Exception e) {
                                 errorMessage = responseBody;
                             }
+                        } else if (error.getMessage() != null) {
+                            errorMessage = error.getMessage();
                         }
                         Toast.makeText(Dashboard.this, "Failed to mark attendance: " + errorMessage, Toast.LENGTH_LONG).show();
                         Log.e("Dashboard", "Attendance marking failed: " + errorMessage, error);
