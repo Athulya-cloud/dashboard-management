@@ -418,7 +418,7 @@ public class Dashboard extends AppCompatActivity implements OnMapReadyCallback {
                             double latitude = 12.34;
                             double longitude = 14.34;
                             String imageBase64 = encodeImageToBase64(imageBitmap);
-                            saveRecentPunch(new ModelRecentPunchesRecycle(System.currentTimeMillis()));
+                            saveRecentPunch(new ModelRecentPunchesRecycle(System.currentTimeMillis(),latitude, longitude, imageBase64));
                             popupWindow.dismiss();
                         } else {
                             Toast.makeText(Dashboard.this, response, Toast.LENGTH_SHORT).show();

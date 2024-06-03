@@ -7,7 +7,7 @@ public class ModelRecentPunchesRecycle implements Serializable{
     private double longitude;
     private String imageBase64;
 
-    public ModelRecentPunchesRecycle(long timestamp) {
+    public ModelRecentPunchesRecycle(long timestamp,double latitude, double longitude, String imageBase64) {
         this.timestamp = timestamp;
         this.latitude = latitude;
         this.longitude = longitude;
